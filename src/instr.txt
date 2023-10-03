@@ -1,5 +1,6 @@
 
 # in build dir
+make
 cc -c ../src/rtlib.c
 clang -fpass-plugin=skeleton/SkeletonPass.dylib -c ../target/foo.c
 cc ../src/rtlib.o foo.o -o exe

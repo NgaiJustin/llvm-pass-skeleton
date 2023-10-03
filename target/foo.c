@@ -1,7 +1,10 @@
-int add4(int x) {
-    return x + 4;
+int addSubMul(int x) {
+    int a = x + 4;
+    int b = a - 3;
+    int c = b * 2;
+    return c;
 }
 
 int main() {
-    return add4(38);
+    return addSubMul(5);
 }

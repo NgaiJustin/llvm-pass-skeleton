@@ -30,28 +30,29 @@ struct SkeletonPass : public PassInfoMixin<SkeletonPass> {
                     if (auto *op = dyn_cast<BinaryOperator>(&I)) {
                         
                         // insert right before function by default
-                        IRBuilder<> builder(op);
+                        IRBuilder<> opBuilder(op);
+                        IRBuilder<> logBuilder(op);
 
-                        // set insertion point right after the op
-                        builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
+                        // newOp is SUB if ADD, MUL if SUB and ADD if MUL
+                        Value *lhs = op->getOperand(0);
+                        Value *rhs = op->getOperand(1);
+                        
+                        Value *newOp = (op->getOpcode() == Instruction::Add) 
+                            ? opBuilder.CreateSub(lhs,rhs) : (op->getOpcode() == Instruction::Sub) 
+                            ? opBuilder.CreateMul(lhs,rhs) : opBuilder.CreateAdd(lhs,rhs); 
+
+                        // replace add instruction
+                        for (auto &U : op->uses()){
+                            User *user = U.getUser();
+                            user->setOperand(U.getOperandNo(), newOp);
+                        }
+
+                        // set insertion point for log right after the op
+                        logBuilder.SetInsertPoint(&B, ++logBuilder.GetInsertPoint());
 
                         Value* args = {op};
-                        builder.CreateCall(logFunc, args);
+                        logBuilder.CreateCall(logFunc, args);
                     }
-
-                    // // null if not BinaryOperator
-                    // if (auto *op = dyn_cast<BinaryOperator>(&I)) {
-                    //     IRBuilder<> builder(op);
-                    //     // construct multiply instruction
-                    //     Value *lhs = op->getOperand(0);
-                    //     Value *rhs = op->getOperand(1);
-                    //     Value *mul = builder.CreateMul(lhs,rhs);
-                    //     // replace add instruction
-                    //     for (auto &U : op->uses()){
-                    //         User *user = U.getUser();
-                    //         user->setOperand(U.getOperandNo(), mul);
-                    //     }
-                    // }
                 }
             }
         }
