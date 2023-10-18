@@ -1,12 +1,15 @@
 #include <stdio.h>
 
-#define N 11
+#define N 3
 
 int main() {
   int x = 0;
+
   for (int i = 0; i < N; i++) {
-    x = x + i;
+    int j = 2;
+    x = x + j;
   }
+
   printf("x = %d\n", x);
 
   return 0;
